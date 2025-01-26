@@ -45,13 +45,13 @@ export const resendOtp = async (email: string) => {
     const response = await axios.post(`${BASE_URL}/auth/sendOtp`, payload);
     return response;
 };
-
+// Function to send otp
 export const sendOtp = async (email: string) => {
     const payload = { email };
     const response = await axios.post(`${BASE_URL}/auth/sendOtp`, payload);
     return response;
 };
-
+// Function to change otp
 export const changePassword = async (email: string, password: string) => {
     const payload = { email, password };
     const response = await axios.post(`${BASE_URL}/auth/resetPassword`, payload);
