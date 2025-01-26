@@ -1,17 +1,30 @@
+import React, { useEffect, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { setOtp, resetOtp } from '../store/slices/otpSlice';
-import { verifyOtp } from '../api';  // Importing centralized API function
+import { sendOtp, verifyOtp } from '../api'; // Importing centralized API function
 import { RootState } from '../store';
 
 export default function OtpVerification() {
   const location = useLocation();
   const { email } = location.state;
-  const otp = useSelector((state:RootState) => state.otp.otp);
+  const otp = useSelector((state: RootState) => state.otp.otp);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const handleChange = (value:string, index:number) => {
+  const [timer, setTimer] = useState(30); // Timer starts at 30 seconds
+  const [isResendDisabled, setIsResendDisabled] = useState(true);
+
+  useEffect(() => {
+    if (timer > 0) {
+      const countdown = setTimeout(() => setTimer(timer - 1), 1000);
+      return () => clearTimeout(countdown); // Cleanup the timeout
+    } else {
+      setIsResendDisabled(false); // Enable resend button when timer reaches 0
+    }
+  }, [timer]);
+
+  const handleChange = (value: string, index: number) => {
     dispatch(resetOtp());
     const updatedOtp = [...otp];
     updatedOtp[index] = value.slice(-1); // Ensure only one digit is entered
@@ -24,7 +37,6 @@ export default function OtpVerification() {
     }
   };
 
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
     if (e.key === 'Backspace' && !otp[index] && index > 0) {
       const prevInput = document.getElementById(`otp-${index - 1}`);
@@ -32,17 +44,28 @@ export default function OtpVerification() {
     }
   };
 
-  const handleSubmit = async (e: { preventDefault: () => void; }) => {
+  const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     const enteredOtp = otp.join('');
     try {
-      const response = await verifyOtp(email, enteredOtp);  // Using centralized API
+      const response = await verifyOtp(email, enteredOtp); // Using centralized API
       if (response.status === 200) {
         dispatch(resetOtp());
         navigate('/change-password', { state: { email } });
       }
     } catch (error) {
       console.error('Error:', error);
+    }
+  };
+
+  const handleResend = async() => {
+    if (!isResendDisabled) {
+      // Logic to resend OTP (API call)
+      console.log('Resending OTP...');
+      setTimer(30); // Reset timer to 30 seconds
+      setIsResendDisabled(true); // Disable the resend button
+       await sendOtp(email)
+
     }
   };
 
@@ -53,8 +76,7 @@ export default function OtpVerification() {
           Verify Your OTP
         </h2>
         <p className="text-sm text-gray-600 mb-6 text-center">
-          We’ve sent a 4-digit OTP to your email. Please enter it below to
-          proceed.
+          We’ve sent a 4-digit OTP to your email. Please enter it below to proceed.
         </p>
         <form className="space-y-6" onSubmit={handleSubmit}>
           <div className="flex justify-center space-x-3">
@@ -81,13 +103,22 @@ export default function OtpVerification() {
         <p className="text-sm text-gray-600 mt-4 text-center">
           Didn’t receive the OTP?{' '}
           <button
-            className="text-indigo-600 hover:underline"
-            onClick={() => alert('Resend OTP clicked!')}
+            className={`text-indigo-600 hover:underline ${
+              isResendDisabled ? 'cursor-not-allowed opacity-50' : ''
+            }`}
+            onClick={handleResend}
+            disabled={isResendDisabled}
           >
             Resend OTP
           </button>
         </p>
+        {isResendDisabled && (
+          <p className="text-sm text-gray-500 mt-2 text-center">
+            Resend available in {timer} seconds
+          </p>
+        )}
       </div>
     </div>
   );
 }
+ 
