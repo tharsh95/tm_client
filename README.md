@@ -12,8 +12,8 @@ Make sure you have the following installed:
 Clone the repository to your local machine using the command below:
 
 ```bash
-git clone <repository-url>
-cd <project-directory>
+git clone https://github.com/tharsh95/tm_client.git
+cd tm-client
 ```
 
 ```bash
