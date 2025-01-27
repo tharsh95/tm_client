@@ -25,8 +25,11 @@ export default function ForgotPassword() {
         navigate('/otp', { state: { email: response.data.email } });
       }
     } catch (error: unknown) {
-      console.log('Error:', error.response.data.message);
-          setErr(error.response.data.message)
+          if (error instanceof AxiosError && error.response) {
+            setErr(error.response.data.message);
+          } else {
+            setErr("An unexpected error occurred");
+          }
     }
   };
 

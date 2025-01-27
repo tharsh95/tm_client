@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { setOtp, resetOtp } from '../store/slices/otpSlice';
 import { sendOtp, verifyOtp } from '../api'; // Importing centralized API function
 import { RootState } from '../store';
-import { set } from 'date-fns';
+import { AxiosError } from 'axios';
 
 export default function OtpVerification() {
   const location = useLocation();
@@ -57,8 +57,13 @@ export default function OtpVerification() {
         navigate('/change-password', { state: { email } });
       }
     } catch (error) {
-      console.log('Error:', error.response.data.message);
-      setErr(error.response.data.message)
+      if (error instanceof AxiosError && error.response && error.response.data) {
+        const axiosError = error as AxiosError<{ message: string }>;
+        console.log('Error:', axiosError.response?.data?.message);
+        setErr((error as AxiosError<{ message: string }>).response?.data?.message || 'An error occurred');
+      } else {
+        console.log('An unknown error occurred.');
+      }
       setTimeout(()=>{
         setErr("")
       },2000)

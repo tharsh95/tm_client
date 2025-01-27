@@ -24,7 +24,11 @@ export default function TaskForm() {
     };
 
     try {
-       await createTask(newTask,token); // Using centralized API function
+       if (token) {
+         await createTask(newTask, token); // Using centralized API function
+       } else {
+         dispatch(setError('Authentication token is missing'));
+       }
       dispatch(addTask(newTask));
       dispatch(resetForm());
     } catch (error) {
