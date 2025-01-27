@@ -5,6 +5,7 @@ import tasksReducer from './slices/tasksSlice';
 import otpReducer from './slices/otpSlice'
 import passwordReducer from './slices/passwordSlice'
 import feedReducer from './slices/feedSlice'
+import authReducer from './slices/authSlice'
 export const store = configureStore({
   reducer: {
     register: registerReducer,
@@ -12,7 +13,8 @@ export const store = configureStore({
     tasks: tasksReducer,
     otp: otpReducer,
     password: passwordReducer,
-    feed:feedReducer
+    feed:feedReducer,
+    auth:authReducer
   },
 });
 

@@ -1,45 +1,47 @@
-import React from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import React  from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setEmail, setPassword } from "../store/slices/loginSlice";
 import { useAuthApi } from "../hooks/useAuth";
 import { RootState } from "../store";
 import { LogIn } from "lucide-react";
+import { setAuth } from "../store/slices/authSlice";
 
 export default function LoginPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const location = useLocation();
-  const message = location.state?.message;
   const { isLoading, error, login } = useAuthApi();
 
   const { email, password } = useSelector((state: RootState) => state.login);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const response = await login(email, password);
-      console.log(response)
-      if(response.success!==false){
-
-        const {
-          token,
-          email: nemail,
-          name,
-        } = response.data as { token: string; email: string; name: string };
-        localStorage.setItem("token", token);
-        localStorage.setItem("email", nemail);
-        localStorage.setItem("name", name);
-        navigate("/");
-      }
-      else{
-        navigate('/register',{state:{message:response.message}})
+      if (response.success === true) {
+        const { token, email: nemail, name } = response.data as {
+          token: string;
+          email: string;
+          name: string;
+        };
+  
+        // Store in localStorage
+        localStorage.setItem('token', token);
+        localStorage.setItem('email', nemail);
+        localStorage.setItem('name', name);
+  
+        // Update Redux state
+        dispatch(setAuth({ token, email: nemail, name }));
+  
+        // Navigate to the home page
+        navigate('/');
       }
     } catch (e) {
-      console.log(e, "error");
+      console.error(e, 'error');
     }
   };
-
+  
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
@@ -106,9 +108,6 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
-        <h1 className="text-xl text-center font-bold text-blue-600">
-          {message}
-        </h1>
       </div>
     </div>
   );

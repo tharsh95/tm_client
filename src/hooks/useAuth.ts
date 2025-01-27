@@ -26,8 +26,9 @@ export const useAuthApi = () => {
       return { success: true, message: 'Registration successful', data: response.data };
     } catch (err: any) {
       setIsLoading(false);
-      setError(err.response?.data?.message || 'An error occurred');
-      return { success: false, message: err.response?.data?.message || 'An error occurred' };
+      console.log(err,'err')
+      setError(err.response?.data.message || 'An error occurred');
+      return { success: false, message: err.response?.data.message || 'An error occurred' };
     }
   };
 
@@ -44,7 +45,8 @@ export const useAuthApi = () => {
       return { success: true, message: 'Login successful', data: response.data };
     } catch (err: any) {
       setIsLoading(false);
-      setError(err.response?.data || 'An error occurred');
+      console.log(err,"qwe")
+      setError(err.response?.data.message || 'An error occurred');
       return { success: false, message: err.response?.data?.message || 'An error occurred', data: undefined };
     }
   };

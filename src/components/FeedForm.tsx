@@ -9,6 +9,7 @@ export default function Feed() {
   const dispatch = useDispatch();
   const { image, caption } = useSelector((state: RootState) => state.feed);
   const [loading, setLoading] = useState(false); // Track loading state
+  const { token } = useSelector((state: RootState) => state.auth);
 
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,7 +40,11 @@ export default function Feed() {
         user: localStorage.getItem("email") || '',
         createdAt: new Date(),
       };
-      await createFeed(pay); // Create feed item
+      if (token) {
+        await createFeed(pay, token); // Create feed item
+      } else {
+        console.error('No token available');
+      }
       dispatch(addFeedItem(pay));
       dispatch(setImage(null));
       dispatch(setCaption(''));
@@ -83,6 +88,7 @@ export default function Feed() {
               value={caption}
               onChange={handleCaptionChange}
               rows={3}
+              required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
             />
           </div>

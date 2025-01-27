@@ -21,6 +21,8 @@ const COLUMNS: Column[] = [
 export default function TaskList() {
   const dispatch = useDispatch();
   const tasks = useSelector((state: RootState) => state.tasks.tasks);
+  const { token } = useSelector((state: RootState) => state.auth);
+
   const taskToDelete = useSelector(
     (state: RootState) => state.tasks.taskToDelete
   );
@@ -30,7 +32,7 @@ export default function TaskList() {
       dispatch(deleteTask(taskToDelete));
       dispatch(setTaskToDelete(null));
       try {
-        await apiDeleteTask(taskToDelete); // Using the centralized delete API
+        await apiDeleteTask(taskToDelete as string, token as string); // Using the centralized delete API
       } catch (error) {
         console.error("Failed to delete task:", error);
       }
@@ -44,8 +46,12 @@ export default function TaskList() {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const data = await getTasks(); // Fetch tasks using the centralized API
-        dispatch(setTasks(data));
+        if (token) {
+          const data = await getTasks(token); // Fetch tasks using the centralized API
+          dispatch(setTasks(data));
+        } else {
+          console.error("Token is null");
+        }
       } catch (error) {
         console.error("Failed to fetch tasks:", error);
       }
@@ -75,7 +81,11 @@ export default function TaskList() {
     );
 
     try {
-      await updateTaskStatus(taskId, newStatus); // Update task status using the centralized API
+      if (token) {
+        await updateTaskStatus(taskId, newStatus, token); // Update task status using the centralized API
+      } else {
+        console.error("Token is null");
+      }
     } catch (error) {
       console.error("Failed to update task status:", error);
     }

@@ -4,6 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { setOtp, resetOtp } from '../store/slices/otpSlice';
 import { sendOtp, verifyOtp } from '../api'; // Importing centralized API function
 import { RootState } from '../store';
+import { set } from 'date-fns';
 
 export default function OtpVerification() {
   const location = useLocation();
@@ -14,6 +15,8 @@ export default function OtpVerification() {
 
   const [timer, setTimer] = useState(30); // Timer starts at 30 seconds
   const [isResendDisabled, setIsResendDisabled] = useState(true);
+    const [error,setErr]= useState("")
+  
 
   useEffect(() => {
     if (timer > 0) {
@@ -54,7 +57,12 @@ export default function OtpVerification() {
         navigate('/change-password', { state: { email } });
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.log('Error:', error.response.data.message);
+      setErr(error.response.data.message)
+      setTimeout(()=>{
+        setErr("")
+      },2000)
+
     }
   };
 
@@ -93,6 +101,8 @@ export default function OtpVerification() {
               />
             ))}
           </div>
+          {error && <p className='text-sm text-red-500'>{error}</p> }
+
           <button
             type="submit"
             className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"

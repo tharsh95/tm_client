@@ -8,12 +8,18 @@ import { fetchFeed } from '../api';  // Import the centralized API function
 export default function FeedList() {
   const dispatch = useDispatch();
   const feedItems = useSelector((state: RootState) => state.feed.items);
+    const { token } = useSelector((state: RootState) => state.auth);
+  
 
   useEffect(() => {
     const getFeed = async () => {
       try {
-        const data = await fetchFeed();  // Use the centralized fetchFeed function
-        dispatch(setFeedItems(data));    // Set the fetched feed items in Redux store
+        if (token) {
+          const data = await fetchFeed(token);  // Use the centralized fetchFeed function
+          dispatch(setFeedItems(data));    // Set the fetched feed items in Redux store
+        } else {
+          console.error('No token available');
+        }
       } catch (error) {
         console.error('Error fetching feed:', error);
       }

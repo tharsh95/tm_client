@@ -5,32 +5,32 @@ import { RootState } from '../store';
 import { Plus } from 'lucide-react';
 import { createTask } from '../api'; // Import centralized API function
 import { AxiosError } from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 
 export default function TaskForm() {
   const dispatch = useDispatch();
   const { title, description, err } = useSelector((state: RootState) => state.tasks);
+  const { token } = useSelector((state: RootState) => state.auth);
 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const newTask = {
+      _id:uuidv4(),
       title,
       description,
       status: 'pending' as const, // New tasks always start in pending
     };
 
     try {
-       await createTask(newTask); // Using centralized API function
+       await createTask(newTask,token); // Using centralized API function
       dispatch(addTask(newTask));
       dispatch(resetForm());
     } catch (error) {
       if (error instanceof AxiosError && error.response) {
-      if (error instanceof Error && error.response) {
-        dispatch(setError(error.response.data));
-      } else {
-        dispatch(setError('Error creating task'));
-      }
+        dispatch(setError(error.response?.data || 'Error creating task'));
+  
     }
   };
 }

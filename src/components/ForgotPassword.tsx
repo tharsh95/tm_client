@@ -1,13 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { setEmail } from '../store/slices/loginSlice';
 import { useNavigate } from 'react-router-dom';
 import { sendOtp } from '../api'; // Import the centralized API function
 import { RootState } from '../store';
+import { AxiosError } from 'axios';
 
 export default function ForgotPassword() {
   const dispatch = useDispatch();
   const email = useSelector((state: RootState) => state.login.email);
+  const [error,setErr]= useState("")
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,8 +24,9 @@ export default function ForgotPassword() {
       if (response.status === 200) {
         navigate('/otp', { state: { email: response.data.email } });
       }
-    } catch (error) {
-      console.error('Error:', error);
+    } catch (error: unknown) {
+      console.log('Error:', error.response.data.message);
+          setErr(error.response.data.message)
     }
   };
 
@@ -53,6 +56,7 @@ export default function ForgotPassword() {
               required
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
             />
+            {error && <p className='text-sm text-red-500'>{error}</p> }
           </div>
           <button
             type="submit"
