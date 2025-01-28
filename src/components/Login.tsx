@@ -1,4 +1,4 @@
-import React  from "react";
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { setEmail, setPassword } from "../store/slices/loginSlice";
@@ -14,7 +14,6 @@ export default function LoginPage() {
 
   const { email, password } = useSelector((state: RootState) => state.login);
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -25,23 +24,23 @@ export default function LoginPage() {
           email: string;
           name: string;
         };
-  
+
         // Store in localStorage
-        localStorage.setItem('token', token);
-        localStorage.setItem('email', nemail);
-        localStorage.setItem('name', name);
-  
+        localStorage.setItem("token", token);
+        localStorage.setItem("email", nemail);
+        localStorage.setItem("name", name);
+
         // Update Redux state
         dispatch(setAuth({ token, email: nemail, name }));
-  
+
         // Navigate to the home page
-        navigate('/');
+        navigate("/");
       }
     } catch (e) {
-      console.error(e, 'error');
+      console.error(e, "error");
     }
   };
-  
+
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="max-w-md w-full bg-white rounded-lg shadow-md p-8">
@@ -51,6 +50,11 @@ export default function LoginPage() {
         <h2 className="text-center text-3xl font-extrabold text-gray-900 mb-8">
           Sign in to your account
         </h2>
+        {/* Note about backend server */}
+        <p className="text-sm text-yellow-600 bg-yellow-100 p-3 rounded-md mb-4">
+          Note: The backend server may spin down during inactivity. If this is
+          the first request in a while, the login may take up to 50 seconds.
+        </p>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label
